@@ -36,13 +36,20 @@ public class MainActivity extends AppCompatActivity {
         borrar=findViewById(R.id.buttonBorrar);
 
         //Listeners
-        borrar.setOnClickListener(view ->
-                tvResultado.setText(tvResultado.getText().toString().substring(0,tvResultado.getText().length()-1)));
+
+        borrar.setOnClickListener(view -> {
+            String texto = tvResultado.getText().toString();
+            if (texto.length() > 0) {
+                tvResultado.setText(texto.substring(0, texto.length() - 1));
+            }
+        });
+
 
         for (int i=0; i<10;i++) {
             botones[i]=findViewById(idBotones[i]);
             botones[i].setOnClickListener(view -> tvResultado.setText(tvResultado.getText().toString()+((Button)view).getText()));
         }
+
         //Lógica
         generaOperacion();
         tvResultado.addTextChangedListener(new TextWatcher() {
@@ -53,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
                 stringInput=charSequence.toString();
                 stringRes=Integer.toString(res);
                 if(stringInput.length()==stringRes.length()){
@@ -63,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
                         tvFallos.setText("Fallos: "+ ++fallos);
                     }
                     tvResultado.setText("");
+
                     DecimalFormat formato = new DecimalFormat("#.00");
                     porcentaje=(Double.valueOf(aciertos))*100/(Double.valueOf(aciertos) + Double.valueOf(fallos));
                     tvPorcentaje.setText("Porcentaje: " + formato.format(porcentaje) + "%");
