@@ -35,6 +35,10 @@ public class MainActivity extends AppCompatActivity {
         tvPorcentaje=findViewById(R.id.textViewPorcentaje);
         borrar=findViewById(R.id.buttonBorrar);
 
+        tvAciertos.setText("Aciertos: " + 0);
+        tvFallos.setText("Fallos: " + 0);
+        tvPorcentaje.setText("Porcentaje: " + 0);
+
         //Listeners
 
         borrar.setOnClickListener(view -> {
