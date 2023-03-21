@@ -95,10 +95,43 @@ public class MainActivity extends AppCompatActivity {
     }
     private void generaOperacion(){
         Random r=new Random();
-        int op1=r.nextInt(10);
-        int op2=r.nextInt(10);
-        tvOperacion.setText(op1 +" + "+ op2);
-        res=op1+op2;
+        int op=r.nextInt(4);
+        if(op==0){
+            int op1=r.nextInt(10);
+            int op2=r.nextInt(10);
+            tvOperacion.setText(op1 +" + "+ op2);
+            res=op1+op2;
+        } else if (op==1) {
+            int op1=r.nextInt(10);
+            int op2=r.nextInt(10);
+            if(op2>op1){
+                int aux=op1;
+                op1=op2;
+                op2=aux;
+            }
+            tvOperacion.setText(op1 +" - "+ op2);
+            res=op1-op2;
+        } else if (op==2){
+            int op1=r.nextInt(10);
+            int op2=r.nextInt(10);
+            tvOperacion.setText(op1 +" * "+ op2);
+            res=op1*op2;
+        } else {
+            int op1=r.nextInt(10);
+            int op2=r.nextInt(10);
+            if(op2>op1){
+                int aux=op1;
+                op1=op2;
+                op2=aux;
+            }
+
+            while (op2 == 0 || op1 % op2 != 0) {
+                op1=r.nextInt(10);
+                op2=r.nextInt(10);
+            }
+            tvOperacion.setText(op1 +" / "+ op2);
+            res = op1 / op2;
+        }
 
     }
 }
