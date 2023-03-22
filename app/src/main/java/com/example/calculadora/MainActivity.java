@@ -4,10 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.SystemClock;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -18,11 +21,14 @@ public class MainActivity extends AppCompatActivity {
     private int idBotones[]={R.id.button0,R.id.button1,R.id.button2,R.id.button3,R.id.button4,R.id.button5,
             R.id.button6,R.id.button7,R.id.button8,R.id.button9};
     private Button botones[]=new Button[10];
-    private Button borrar, comprobar, reiniciar;
+    private Button borrar, comprobar, reiniciar, iniciar;
     private TextView tvAciertos,tvFallos,tvOperacion,tvResultado,tvPorcentaje,tvRecord;
     private int res,input,aciertos=0, fallos=0;
     private double porcentaje=0.0, record=0.0;
     private String stringRes, stringInput;
+    Chronometer cronometro;
+
+    private CountDownTimer cuentaAtras;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
         borrar=findViewById(R.id.buttonBorrar);
         comprobar=findViewById(R.id.buttonComprobar);
         reiniciar=findViewById(R.id.buttonReiniciar);
+        iniciar=findViewById(R.id.buttonInicio);
+        cronometro=findViewById(R.id.chronometer);
 
 
         tvAciertos.setText("Aciertos: " + aciertos);
@@ -46,12 +54,25 @@ public class MainActivity extends AppCompatActivity {
         tvPorcentaje.setText("Porcentaje: " + porcentaje + "%");
         tvRecord.setText("Record: " + record + "%");
 
+        long currentTime = SystemClock.elapsedRealtime();
+        long tenSecondsLater = currentTime - 30000; // 30 segundos en milisegundos
+        cronometro.setBase(tenSecondsLater);
+
         //Listeners
 
         borrar.setOnClickListener(view -> {
             tvResultado.setText("");
         });
 
+        iniciar.setOnClickListener(view -> {
+            iniciar.setVisibility(View.GONE);
+            reiniciar.setVisibility(View.VISIBLE);
+            activarBotones();
+            if(cuentaAtras!=null){
+                cuentaAtras.cancel();
+            }
+            arrancarCronometro();
+        });
 
         for (int i=0; i<10;i++) {
             botones[i]=findViewById(idBotones[i]);
@@ -63,24 +84,12 @@ public class MainActivity extends AppCompatActivity {
 
         //Lógica
         generaOperacion();
+        desactivarBotones();
         borrar.setEnabled(false);
         comprobar.setEnabled(false);
 
         reiniciar.setOnClickListener(view -> {
-
-            DecimalFormat formato = new DecimalFormat("#.00");
-
-            if(porcentaje>record){
-                record=porcentaje;
-            }
-
-            aciertos=0;
-            fallos=0;
-            porcentaje=0.0;
-            tvAciertos.setText("Aciertos: " + aciertos);
-            tvFallos.setText("Fallos: " + fallos);
-            tvPorcentaje.setText("Porcentaje: " + porcentaje + "%");
-            tvRecord.setText("Record: " + formato.format(record) + "%");
+            reinicio();
         });
         tvResultado.addTextChangedListener(new TextWatcher() {
             @Override
@@ -126,6 +135,71 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    private void activarBotones() {
+        for (int i=0; i<10;i++) {
+            botones[i]=findViewById(idBotones[i]);
+            botones[i].setEnabled(true);
+        }
+    }
+
+    private void arrancarCronometro() {
+        cuentaAtras=new CountDownTimer(30000, 1000) {
+
+            public void onTick(long millisUntilFinished) {
+                if(millisUntilFinished<10000){
+                    cronometro.setText("00" + ":" + "0" + millisUntilFinished / 1000);
+                } else{
+                    cronometro.setText("00" + ":" + millisUntilFinished / 1000);
+                }
+            }
+
+            public void onFinish() {
+                cronometro.setText("00:00");
+                actualizar();
+                iniciar.setVisibility(View.VISIBLE);
+                reiniciar.setVisibility(View.GONE);
+                desactivarBotones();
+            }
+        }.start();
+    }
+
+    private void desactivarBotones() {
+        for (int i=0; i<10;i++) {
+            botones[i]=findViewById(idBotones[i]);
+            botones[i].setEnabled(false);
+        }
+    }
+
+    private void reinicio() {
+        iniciar.setVisibility(View.VISIBLE);
+        reiniciar.setVisibility(View.GONE);
+        desactivarBotones();
+        cuentaAtras.cancel();
+
+        cronometro.setText("00" + ":" + "30");
+        borrar.setEnabled(false);
+        comprobar.setEnabled(false);
+        actualizar();
+    }
+
+    private void actualizar() {
+
+        DecimalFormat formato = new DecimalFormat("#.00");
+
+        if(porcentaje>record){
+            record=porcentaje;
+        }
+
+        aciertos=0;
+        fallos=0;
+        porcentaje=0.0;
+        tvAciertos.setText("Aciertos: " + aciertos);
+        tvFallos.setText("Fallos: " + fallos);
+        tvPorcentaje.setText("Porcentaje: " + porcentaje + "%");
+        tvRecord.setText("Record: " + formato.format(record) + "%");
+    }
+
     private void generaOperacion(){
         Random r=new Random();
         int op=r.nextInt(4);
