@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Calculadora</string>
+    <string name="app_name">Calculadora Interactiva</string>
     <string name="operacion">Operación</string>
     <string name="_0">0</string>
     <string name="_1">1</string>
@@ -12,4 +12,10 @@
     <string name="_8">8</string>
     <string name="_9">9</string>
     <string name="Borrar">Borrar</string>
+    <string name="Revisar">Revisar</string>
+    <string name="Aciertos">Aciertos</string>
+    <string name="Fallos">Fallos</string>
+    <string name="Porcentaje">Porcentaje</string>
+    <string name="Record">Record</string>
+    <string name="Reiniciar">Reiniciar</string>
 </resources>

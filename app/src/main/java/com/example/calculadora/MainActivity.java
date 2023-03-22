@@ -2,6 +2,7 @@ package com.example.calculadora;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -17,11 +18,12 @@ public class MainActivity extends AppCompatActivity {
     private int idBotones[]={R.id.button0,R.id.button1,R.id.button2,R.id.button3,R.id.button4,R.id.button5,
             R.id.button6,R.id.button7,R.id.button8,R.id.button9};
     private Button botones[]=new Button[10];
-    private Button borrar;
-    private TextView tvAciertos,tvFallos,tvOperacion,tvResultado,tvPorcentaje;
+    private Button borrar, comprobar, reiniciar;
+    private TextView tvAciertos,tvFallos,tvOperacion,tvResultado,tvPorcentaje,tvRecord;
     private int res,input,aciertos=0, fallos=0;
-    private double porcentaje=0.0;
+    private double porcentaje=0.0, record=0.0;
     private String stringRes, stringInput;
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,29 +35,53 @@ public class MainActivity extends AppCompatActivity {
         tvAciertos=findViewById(R.id.textViewAciertos);
         tvFallos=findViewById(R.id.textViewFallos);
         tvPorcentaje=findViewById(R.id.textViewPorcentaje);
+        tvRecord=findViewById(R.id.textViewRecord);
         borrar=findViewById(R.id.buttonBorrar);
+        comprobar=findViewById(R.id.buttonComprobar);
+        reiniciar=findViewById(R.id.buttonReiniciar);
 
-        tvAciertos.setText("Aciertos: " + 0);
-        tvFallos.setText("Fallos: " + 0);
-        tvPorcentaje.setText("Porcentaje: " + 0);
+
+        tvAciertos.setText("Aciertos: " + aciertos);
+        tvFallos.setText("Fallos: " + fallos);
+        tvPorcentaje.setText("Porcentaje: " + porcentaje + "%");
+        tvRecord.setText("Record: " + record + "%");
 
         //Listeners
 
         borrar.setOnClickListener(view -> {
-            String texto = tvResultado.getText().toString();
-            if (texto.length() > 0) {
-                tvResultado.setText(texto.substring(0, texto.length() - 1));
-            }
+            tvResultado.setText("");
         });
 
 
         for (int i=0; i<10;i++) {
             botones[i]=findViewById(idBotones[i]);
             botones[i].setOnClickListener(view -> tvResultado.setText(tvResultado.getText().toString()+((Button)view).getText()));
+            botones[i].setOnClickListener(view -> {
+                tvResultado.setText(tvResultado.getText().toString() + ((Button) view).getText());
+            });
         }
 
         //Lógica
         generaOperacion();
+        borrar.setEnabled(false);
+        comprobar.setEnabled(false);
+
+        reiniciar.setOnClickListener(view -> {
+
+            DecimalFormat formato = new DecimalFormat("#.00");
+
+            if(porcentaje>record){
+                record=porcentaje;
+            }
+
+            aciertos=0;
+            fallos=0;
+            porcentaje=0.0;
+            tvAciertos.setText("Aciertos: " + aciertos);
+            tvFallos.setText("Fallos: " + fallos);
+            tvPorcentaje.setText("Porcentaje: " + porcentaje + "%");
+            tvRecord.setText("Record: " + formato.format(record) + "%");
+        });
         tvResultado.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -65,21 +91,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                stringInput=charSequence.toString();
-                stringRes=Integer.toString(res);
-                if(stringInput.length()==stringRes.length()){
-                    if(stringRes.equals(stringInput)){
-                        tvAciertos.setText("Aciertos: "+ ++aciertos);
-                        generaOperacion();
-                    }else{
-                        tvFallos.setText("Fallos: "+ ++fallos);
-                    }
-                    tvResultado.setText("");
-
-                    DecimalFormat formato = new DecimalFormat("#.00");
-                    porcentaje=(Double.valueOf(aciertos))*100/(Double.valueOf(aciertos) + Double.valueOf(fallos));
-                    tvPorcentaje.setText("Porcentaje: " + formato.format(porcentaje) + "%");
+                if(tvResultado.length() > 0){
+                    borrar.setEnabled(true);
+                    comprobar.setEnabled(true);
+                } else {
+                    borrar.setEnabled(false);
+                    comprobar.setEnabled(false);
                 }
+
             }
 
             @Override
@@ -88,8 +107,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        comprobar.setOnClickListener(view -> {
+            if(stringRes.equals(tvResultado.getText().toString())){
+                tvAciertos.setText("Aciertos: "+ ++aciertos);
+                generaOperacion();
+            }
+            else {
+                tvFallos.setText("Fallos: "+ ++fallos);
+                generaOperacion();
+            }
+            tvResultado.setText("");
 
+            DecimalFormat formato = new DecimalFormat("#.00");
+            porcentaje=(Double.valueOf(aciertos))*100/(Double.valueOf(aciertos) + Double.valueOf(fallos));
+            tvPorcentaje.setText("Porcentaje: " + formato.format(porcentaje) + "%");
 
+        });
 
 
     }
@@ -99,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         if(op==0){
             int op1=r.nextInt(10);
             int op2=r.nextInt(10);
-            tvOperacion.setText(op1 +" + "+ op2);
+            tvOperacion.setText(op1 +" + "+ op2 + " = ");
             res=op1+op2;
         } else if (op==1) {
             int op1=r.nextInt(10);
@@ -109,12 +142,12 @@ public class MainActivity extends AppCompatActivity {
                 op1=op2;
                 op2=aux;
             }
-            tvOperacion.setText(op1 +" - "+ op2);
+            tvOperacion.setText(op1 +" - "+ op2 + " = ");
             res=op1-op2;
         } else if (op==2){
             int op1=r.nextInt(10);
             int op2=r.nextInt(10);
-            tvOperacion.setText(op1 +" * "+ op2);
+            tvOperacion.setText(op1 +" * "+ op2 + " = ");
             res=op1*op2;
         } else {
             int op1=r.nextInt(10);
@@ -129,9 +162,9 @@ public class MainActivity extends AppCompatActivity {
                 op1=r.nextInt(10);
                 op2=r.nextInt(10);
             }
-            tvOperacion.setText(op1 +" / "+ op2);
+            tvOperacion.setText(op1 +" / "+ op2 + " = ");
             res = op1 / op2;
         }
-
+        stringRes = String.valueOf(res);
     }
 }
