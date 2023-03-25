@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
             R.id.button6,R.id.button7,R.id.button8,R.id.button9};
     private Button botones[]=new Button[10];
     private Button borrar, comprobar, reiniciar, iniciar;
-    private TextView tvAciertos,tvFallos,tvOperacion,tvResultado,tvPorcentaje,tvRecord;
+    private TextView tvAciertos,tvFallos,tvOperacion,tvResultado,tvPorcentaje,tvRecord, tvTitulo;
     private int res,input,aciertos=0, fallos=0, record=0;
     private double porcentaje=0.0;
     private String stringRes, stringInput;
@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         reiniciar=findViewById(R.id.buttonReiniciar);
         iniciar=findViewById(R.id.buttonInicio);
         cronometro=findViewById(R.id.chronometer);
+        tvTitulo=findViewById(R.id.textViewTitle);
 
 
         tvAciertos.setText("Aciertos: " + aciertos);
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         tvPorcentaje.setText("Porcentaje: " + porcentaje + "%");
         tvRecord.setText("Record de aciertos: " + record);
         tvOperacion.setText("");
+        tvTitulo.setText("Pulse en inicio para empezar");
 
         long currentTime = SystemClock.elapsedRealtime();
         long tenSecondsLater = currentTime - 30000; // 30 segundos en milisegundos
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
         iniciar.setOnClickListener(view -> {
             iniciar.setVisibility(View.GONE);
             reiniciar.setVisibility(View.VISIBLE);
+            tvTitulo.setText("Operación");
             activarBotones();
             generaOperacion();
             if(cuentaAtras!=null){
@@ -93,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
         reiniciar.setOnClickListener(view -> {
             reinicio();
+            tvTitulo.setText("Pulse en inicio para empezar");
         });
         tvResultado.addTextChangedListener(new TextWatcher() {
             @Override
@@ -162,8 +166,10 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Se acabó el tiempo, has conseguido " + aciertos + " aciertos", Toast.LENGTH_SHORT).show();
                 actualizar();
                 tvOperacion.setText("");
+                tvTitulo.setText("Pulse en inicio para empezar");
                 iniciar.setVisibility(View.VISIBLE);
                 reiniciar.setVisibility(View.GONE);
+                tvOperacion.setText("");
                 desactivarBotones();
             }
         }.start();
@@ -235,18 +241,14 @@ public class MainActivity extends AppCompatActivity {
             tvOperacion.setText(op1 +" * "+ op2 + " = ");
             res=op1*op2;
         } else {
-            int op1=r.nextInt(10);
-            int op2=r.nextInt(10);
-            if(op2>op1){
-                int aux=op1;
-                op1=op2;
-                op2=aux;
-            }
+            int op1=r.nextInt(50);
+            int op2=r.nextInt(50);
 
             while (op2 == 0 || op1 % op2 != 0) {
-                op1=r.nextInt(10);
-                op2=r.nextInt(10);
+                op1=r.nextInt(50);
+                op2=r.nextInt(50);
             }
+
             tvOperacion.setText(op1 +" / "+ op2 + " = ");
             res = op1 / op2;
         }
