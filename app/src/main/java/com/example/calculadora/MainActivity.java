@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DecimalFormat;
 import java.util.Random;
@@ -23,8 +24,8 @@ public class MainActivity extends AppCompatActivity {
     private Button botones[]=new Button[10];
     private Button borrar, comprobar, reiniciar, iniciar;
     private TextView tvAciertos,tvFallos,tvOperacion,tvResultado,tvPorcentaje,tvRecord;
-    private int res,input,aciertos=0, fallos=0;
-    private double porcentaje=0.0, record=0.0;
+    private int res,input,aciertos=0, fallos=0, record=0;
+    private double porcentaje=0.0;
     private String stringRes, stringInput;
     Chronometer cronometro;
 
@@ -52,7 +53,8 @@ public class MainActivity extends AppCompatActivity {
         tvAciertos.setText("Aciertos: " + aciertos);
         tvFallos.setText("Fallos: " + fallos);
         tvPorcentaje.setText("Porcentaje: " + porcentaje + "%");
-        tvRecord.setText("Record: " + record + "%");
+        tvRecord.setText("Record de aciertos: " + record);
+        tvOperacion.setText("");
 
         long currentTime = SystemClock.elapsedRealtime();
         long tenSecondsLater = currentTime - 30000; // 30 segundos en milisegundos
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
             iniciar.setVisibility(View.GONE);
             reiniciar.setVisibility(View.VISIBLE);
             activarBotones();
+            generaOperacion();
             if(cuentaAtras!=null){
                 cuentaAtras.cancel();
             }
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //Lógica
-        generaOperacion();
+        //generaOperacion();
         desactivarBotones();
         borrar.setEnabled(false);
         comprobar.setEnabled(false);
@@ -156,7 +159,9 @@ public class MainActivity extends AppCompatActivity {
 
             public void onFinish() {
                 cronometro.setText("00:00");
+                Toast.makeText(MainActivity.this, "Se acabó el tiempo, has conseguido " + aciertos + " aciertos", Toast.LENGTH_SHORT).show();
                 actualizar();
+                tvOperacion.setText("");
                 iniciar.setVisibility(View.VISIBLE);
                 reiniciar.setVisibility(View.GONE);
                 desactivarBotones();
@@ -172,8 +177,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void reinicio() {
+        Toast.makeText(MainActivity.this, "Has reiniciado partida, has consegido " + aciertos + " aciertos", Toast.LENGTH_SHORT).show();
         iniciar.setVisibility(View.VISIBLE);
         reiniciar.setVisibility(View.GONE);
+        tvResultado.setText("");
+        tvOperacion.setText("");
         desactivarBotones();
         cuentaAtras.cancel();
 
@@ -181,14 +189,14 @@ public class MainActivity extends AppCompatActivity {
         borrar.setEnabled(false);
         comprobar.setEnabled(false);
         actualizar();
+        //generaOperacion();
     }
 
     private void actualizar() {
 
-        DecimalFormat formato = new DecimalFormat("#.00");
 
-        if(porcentaje>record){
-            record=porcentaje;
+        if(aciertos>record){
+            record=aciertos;
         }
 
         aciertos=0;
@@ -197,9 +205,12 @@ public class MainActivity extends AppCompatActivity {
         tvAciertos.setText("Aciertos: " + aciertos);
         tvFallos.setText("Fallos: " + fallos);
         tvPorcentaje.setText("Porcentaje: " + porcentaje + "%");
-        tvRecord.setText("Record: " + formato.format(record) + "%");
+        tvRecord.setText("Record de aciertos: " + record);
     }
 
+    /**
+     * Genera la operación de forma aleatoria
+     */
     private void generaOperacion(){
         Random r=new Random();
         int op=r.nextInt(4);
