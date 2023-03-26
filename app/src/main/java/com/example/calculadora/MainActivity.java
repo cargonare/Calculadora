@@ -3,8 +3,10 @@ package com.example.calculadora;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -15,6 +17,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -22,12 +26,13 @@ public class MainActivity extends AppCompatActivity {
     private int idBotones[]={R.id.button0,R.id.button1,R.id.button2,R.id.button3,R.id.button4,R.id.button5,
             R.id.button6,R.id.button7,R.id.button8,R.id.button9};
     private Button botones[]=new Button[10];
-    private Button borrar, comprobar, reiniciar, iniciar;
+    private Button borrar, comprobar, reiniciar, iniciar, estadisticas;
     private TextView tvAciertos,tvFallos,tvOperacion,tvResultado,tvPorcentaje,tvRecord, tvTitulo;
-    private int res,input,aciertos=0, fallos=0, record=0;
+    private int res,input,aciertos=0, fallos=0, record=0, index=1;
     private double porcentaje=0.0;
     private String stringRes, stringInput;
     Chronometer cronometro;
+    ArrayList<Resultado> listaResultados = new ArrayList<Resultado>();
 
     private CountDownTimer cuentaAtras;
     @SuppressLint("MissingInflatedId")
@@ -49,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         iniciar=findViewById(R.id.buttonInicio);
         cronometro=findViewById(R.id.chronometer);
         tvTitulo=findViewById(R.id.textViewTitle);
+        estadisticas=findViewById(R.id.buttonEstadisticas);
 
 
         tvAciertos.setText("Aciertos: " + aciertos);
@@ -72,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
             iniciar.setVisibility(View.GONE);
             reiniciar.setVisibility(View.VISIBLE);
             tvTitulo.setText("Operación");
+            estadisticas.setEnabled(false);
             activarBotones();
             generaOperacion();
             if(cuentaAtras!=null){
@@ -141,6 +148,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("listaResultados", listaResultados);
+
+        Intent intent = new Intent(this, Estadisticas.class);
+        intent.putExtras(bundle);
+
+        estadisticas.setOnClickListener(view -> {
+            startActivity(intent);
+        });
+
     }
 
     private void activarBotones() {
@@ -164,11 +181,13 @@ public class MainActivity extends AppCompatActivity {
             public void onFinish() {
                 cronometro.setText("00:00");
                 Toast.makeText(MainActivity.this, "Se acabó el tiempo, has conseguido " + aciertos + " aciertos", Toast.LENGTH_SHORT).show();
+                listaResultados.add(new Resultado(index,aciertos,fallos,porcentaje));
                 actualizar();
                 tvOperacion.setText("");
                 tvTitulo.setText("Pulse en inicio para empezar");
                 iniciar.setVisibility(View.VISIBLE);
                 reiniciar.setVisibility(View.GONE);
+                estadisticas.setEnabled(true);
                 tvOperacion.setText("");
                 desactivarBotones();
             }
@@ -186,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(MainActivity.this, "Has reiniciado partida, has consegido " + aciertos + " aciertos", Toast.LENGTH_SHORT).show();
         iniciar.setVisibility(View.VISIBLE);
         reiniciar.setVisibility(View.GONE);
+        estadisticas.setEnabled(true);
         tvResultado.setText("");
         tvOperacion.setText("");
         desactivarBotones();
@@ -194,12 +214,14 @@ public class MainActivity extends AppCompatActivity {
         cronometro.setText("00" + ":" + "30");
         borrar.setEnabled(false);
         comprobar.setEnabled(false);
+        listaResultados.add(new Resultado(index,aciertos,fallos,porcentaje));
         actualizar();
         //generaOperacion();
     }
 
     private void actualizar() {
 
+        index++;
 
         if(aciertos>record){
             record=aciertos;
