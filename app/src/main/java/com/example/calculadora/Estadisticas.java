@@ -66,6 +66,10 @@ public class Estadisticas extends AppCompatActivity {
 
                 return view;
             }
+
+            public boolean isEnabled(int position) {
+                return false;
+            }
         };
 
         ListView listView = findViewById(R.id.list_view);
